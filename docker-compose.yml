@@ -2,51 +2,37 @@ version: "3"
 
 services:
 
-  localstack:
-    image: localstack/localstack
-    container_name: localstack
-    environment:
-      - SERVICES=sqs
-      - HOSTNAME=localstack
-      - DEFAULT_REGION=eu-west-2
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
     ports:
-      - "4576:4576"
-      - "8080:8080"
+      - "5342:5341"
+      - "8000:80"
+    environment:
+      - ACCEPT_EULA=Y
 
-  awscli:
-      image: garland/aws-cli-docker
-      container_name: awscli
-      depends_on:
-        - localstack
-      environment:
-        - AWS_DEFAULT_REGION=eu-west-2
-        - AWS_ACCESS_KEY_ID=xxx
-        - AWS_SECRET_ACCESS_KEY=xxx
-      command:
-        - /bin/sh
-        - -c
-        - |
-            sleep 10
-            aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name local-queue-1 --attributes ReceiveMessageWaitTimeSeconds=1
-            aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name local-queue-2 --attributes ReceiveMessageWaitTimeSeconds=1
+  sqs:
+    image: roribio16/alpine-sqs:latest
+    container_name: sqs
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    stdin_open: true
+    tty: true
 
   consumer:
     build:
       context: .
       dockerfile: ./src/Consumer/Dockerfile
     depends_on:
-        - awscli
+        - sqs
     container_name: consumer
     environment:
-      - ASPNETCORE_Environment=Development
       - AWS_ACCESS_KEY_ID=XX
       - AWS_SECRET_ACCESS_KEY=XX
-      - AWS_REGION=eu-west-2
-      - Consumer_Settings:Endpoint=http://localstack:4576
-      - Consumer_Settings:QueueUrl=http://localstack:4576/queue/local-queue-1
+      - Consumer_Settings:Endpoint=http://sqs:4576
+      - Consumer_Settings:QueueUrl=http://sqs:4576/queue/default
       - Consumer__Settings:VisibilityTimeout=3
-      # Change this to "Error" in production:
       - Consumer_Serilog:WriteTo:0:Args:restrictedToMinimumLevel=Information
-      # Point to the remote Seq instance
-      - Consumer_Serilog:WriteTo:1:Args:serverUrl=http://win.local:5341
+      - Consumer_Serilog:WriteTo:1:Args:serverUrl=http://seq:5341
       - Consumer_Serilog:WriteTo:1:Args:apiKey=xxx
