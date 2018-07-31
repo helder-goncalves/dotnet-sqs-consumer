@@ -1,4 +1,3 @@
-using Amazon.SQS.Model;
 using Queueing.Models;
 using System.Collections.Generic;
 using System.Threading;

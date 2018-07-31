@@ -6,6 +6,7 @@ using Proto;
 using Serilog;
 using SerilogTimings.Extensions;
 using Consumer.Messages;
+using Consumer.Factories;
 
 namespace Consumer.Actors
 {

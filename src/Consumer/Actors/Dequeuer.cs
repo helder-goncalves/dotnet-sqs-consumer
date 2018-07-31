@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Proto;
 using Serilog;
-using Serilog.Context;
 using Consumer.Messages;
 using Queueing;
-using SerilogTimings.Extensions;
-using Queueing.Models;
 using Consumer.Factories;
 
 namespace Consumer.Actors
@@ -18,13 +13,13 @@ namespace Consumer.Actors
     {
         private readonly ISQSClient _sqsClient;
         private readonly ILogger _logger;
-        private readonly ICommandActorFactory _factory;
+        private readonly IActorFactory _factory;
         private readonly IMessageMapper _mapper;
 
         public Dequeuer(
             ISQSClient sqsClient,
             ILogger logger,
-            ICommandActorFactory factory,
+            IActorFactory factory,
             IMessageMapper mapper)
         {
             _sqsClient = sqsClient ?? throw new ArgumentNullException(nameof(sqsClient));
@@ -37,12 +32,6 @@ namespace Consumer.Actors
         {
             switch (context.Message)
             {
-                case Started _:
-                {
-                    context.Self.Tell(new ReceiveMessages());
-                }
-                break;
-
                 case ReceiveMessages receive:
                 {
                     var commands = await _sqsClient.ReceiveMessageBatchAsync(receive.NumberOfMessages);
@@ -50,7 +39,7 @@ namespace Consumer.Actors
                     {
                         foreach (var command in commands)
                         {
-                            var handler = _factory.GetHandler(command);
+                            var handler = _factory.GetActor(command);
                             var message = _mapper.Map(command);
                             handler.Tell(message);
                         }

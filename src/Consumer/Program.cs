@@ -2,30 +2,21 @@
 using System.IO;
 using System.Runtime.Loader;
 using System.Threading;
-using System.Threading.Tasks;
 using Amazon.SQS;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Proto;
 using Serilog;
 using Consumer.Actors;
-using Consumer.Dependencies;
-using Consumer.Messages;
-using Queueing;
 using StructureMap;
 using Queueing.Configuration;
-using Queueing.Models;
-using System.Collections.Generic;
-using Consumer.Factories;
 using Shared;
+using Consumer.Dependencies;
+using Queueing.Dependencies;
+using Consumer.Messages;
+using Consumer.Factories;
 
 namespace Consumer
 {
-    /// <summary>
-    /// Application bootstrapper
-    /// </summary>
     class Program
     {
         private static Serilog.ILogger _logger;
@@ -33,10 +24,6 @@ namespace Consumer
         private static AutoResetEvent _closing = new AutoResetEvent(false);
         private static CancellationTokenSource _cancellationToken = new CancellationTokenSource();
 
-        /// <summary>
-        /// Entry point for the application
-        /// </summary>
-        /// <returns>A task that completes when the application ends.</returns>
         static void Main()
         {
             _configuration = BuildConfiguration();
@@ -49,47 +36,32 @@ namespace Consumer
             try
             {
                 _logger.Information("Starting Consumer. Press Ctrl+C to exit.");
+                _logger.Debug(_configuration.Dump());
 
-                if (IsDevelopmentEnvironment())
-                    _logger.Information(_configuration.Dump());
+                var container = new Container(config =>
+                {
+                    config.AddRegistry(new AppRegistry(_configuration, _logger));
+                    config.AddRegistry(new QueueingRegistry(_configuration));
+                });
 
-                var resolver = new Container();
+#if DEBUG
+                container.AssertConfigurationIsValid();
+#endif
 
-                var actorFactory = resolver.GetInstance<IActorFactory>();
+                var actorFactory = container.GetInstance<IActorFactory>();
                 var dequeuer = actorFactory.GetActor<Dequeuer>();
+                dequeuer.Tell(new ReceiveMessages());
 
                 _closing.WaitOne();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error starting Consumer");
+                _logger.Error(ex, "Error starting Consumer.");
             }
             finally
             {
                 Serilog.Log.CloseAndFlush();
             }
-        }
-
-        static Props WithReceiveMiddleware(Props props)
-        {
-            return props.WithReceiveMiddleware(next => async c =>
-                {
-                    if (c.Message is SendRequest request)
-                    {
-                        _logger.Information("{ActorId} received {MessageType} for {MessageId}", c.Self.Id, c.Message.GetType().Name, request.MessageId);
-                    }
-                    if (c.Message is DeleteMessage delete)
-                    {
-                        _logger.Information("{ActorId} received {MessageType} for {MessageId}", c.Self.Id, c.Message.GetType().Name, delete.MessageId);
-                    }
-                    else
-                    {
-                        _logger.Information("{ActorId} received {MessageType}", c.Self.Id, c.Message.GetType().Name);
-                    }
-
-                    await next(c);
-                    //_logger.Information("Exit {ActorType} received {MessageType}", c.Actor.GetType().Name, c.Message.GetType().Name);
-                });
         }
 
         Serilog.ILogger ConfigureLogger()
@@ -148,16 +120,6 @@ namespace Consumer
                 .AddJsonFile("appsettings.local.json", optional: true)
                 .AddEnvironmentVariables(prefix: "Consumer_")
                 .Build();
-        }
-
-        /// <summary>
-        /// Determines whether the application is running in Development mode
-        /// </summary>
-        /// <returns>True if running in Development, otherwise False</returns>
-        static bool IsDevelopmentEnvironment()
-        {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            return "Development".Equals(environment, StringComparison.OrdinalIgnoreCase);
         }
 
         private static IAmazonSQS CreateAmazonSQSClient(QueueSettings settings)

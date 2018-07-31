@@ -1,5 +1,3 @@
-
-using Queueing;
 using Queueing.Models;
 
 namespace Consumer.Messages
