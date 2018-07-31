@@ -1,9 +1,7 @@
-﻿namespace Queueing.Queueing.Models
+﻿namespace Queueing.Models
 {
-    public class EmailCommand : ISQSCommand
+    public class EmailCommand : SQSCommand
     {
-        public string CommandId { get; set; }
-        public string ReceiptHandle { get; set; }
         public string Email { get; set; }
     }
 }

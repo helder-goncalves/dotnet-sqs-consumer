@@ -1,6 +1,6 @@
 
 using Queueing;
-using Queueing.Queueing.Models;
+using Queueing.Models;
 
 namespace Consumer.Messages
 {

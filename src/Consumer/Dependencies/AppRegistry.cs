@@ -8,7 +8,7 @@ using Serilog;
 using Consumer.Actors;
 using StructureMap;
 using Queueing;
-using Queueing.Queueing.Models;
+using Queueing.Models;
 using Queueing.Configuration;
 using Shared;
 

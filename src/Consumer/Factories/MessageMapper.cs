@@ -1,6 +1,6 @@
 using System;
 using Consumer.Messages;
-using Queueing.Queueing.Models;
+using Queueing.Models;
 
 namespace Consumer.Factories
 {

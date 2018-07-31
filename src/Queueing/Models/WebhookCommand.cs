@@ -1,9 +1,7 @@
-namespace Queueing.Queueing.Models
+namespace Queueing.Models
 {
-    public class WebhookCommand : ISQSCommand
+    public class WebhookCommand : SQSCommand
     {
-        public string CommandId { get; set; }
         public string Url { get; set; }
-        public string ReceiptHandle { get; set; }
     }
 }

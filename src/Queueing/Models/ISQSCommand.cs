@@ -1,4 +1,4 @@
-namespace Queueing.Queueing.Models
+namespace Queueing.Models
 {
     public interface ISQSCommand
     {

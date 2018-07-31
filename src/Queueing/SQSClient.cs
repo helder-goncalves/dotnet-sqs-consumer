@@ -2,7 +2,7 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using Newtonsoft.Json;
 using Queueing.Configuration;
-using Queueing.Queueing.Models;
+using Queueing.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

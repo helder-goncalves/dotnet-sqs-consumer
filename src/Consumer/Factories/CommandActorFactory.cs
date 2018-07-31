@@ -1,6 +1,6 @@
 using System;
 using Consumer.Actors;
-using Queueing.Queueing.Models;
+using Queueing.Models;
 using Proto;
 
 namespace Consumer.Factories

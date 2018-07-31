@@ -1,5 +1,5 @@
 using Amazon.SQS.Model;
-using Queueing.Queueing.Models;
+using Queueing.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

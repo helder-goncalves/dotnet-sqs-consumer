@@ -9,7 +9,7 @@ using Serilog.Context;
 using Consumer.Messages;
 using Queueing;
 using SerilogTimings.Extensions;
-using Queueing.Queueing.Models;
+using Queueing.Models;
 using Consumer.Factories;
 
 namespace Consumer.Actors

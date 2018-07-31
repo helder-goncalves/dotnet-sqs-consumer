@@ -1,4 +1,4 @@
-using Queueing.Queueing.Models;
+using Queueing.Models;
 
 namespace Consumer.Factories
 {
