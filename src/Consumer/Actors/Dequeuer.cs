@@ -34,7 +34,7 @@ namespace Consumer.Actors
             {
                 case ReceiveMessages receive:
                 {
-                    var commands = await _sqsClient.ReceiveMessageBatchAsync(receive.NumberOfMessages);
+                    var commands = await _sqsClient.ReceiveCommandBatchAsync(receive.NumberOfMessages);
                     if (commands.Count() > 0)
                     {
                         foreach (var command in commands)

@@ -55,8 +55,8 @@ namespace Consumer.Actors
 
                         foreach (var chunk in _receiptHandles.ChunkBy(10))
                         {
-                            var response = await _sqsClient.DeleteMessageBatchAsync(chunk);
-                            successful.AddRange(response.Sucessful);
+                            var response = await _sqsClient.DeleteCommandBatchAsync(chunk);
+                            successful.AddRange(response.Successful);
                         }
 
                         RemoveFromBatch(successful);

@@ -7,11 +7,28 @@ namespace Queueing
 {
     public interface ISQSClient
     {
-        Task<ISQSCommand> ReceiveMessageAsync(CancellationToken cancellationToken = default(CancellationToken));
-        Task<IEnumerable<ISQSCommand>> ReceiveMessageBatchAsync(int maxNumberOfMessages = 10, CancellationToken cancellationToken = default(CancellationToken));
-        Task SendMessageBatchAsync(IList<object> messages, string queueUrl = null, CancellationToken cancellationToken = default(CancellationToken));
-        Task DeleteMessageAsync(string receiptHandle, CancellationToken cancellationToken = default(CancellationToken));
-        Task<(IList<string> Sucessful, IList<string> Failed)> DeleteMessageBatchAsync(IList<string> receiptHandles, CancellationToken cancellationToken = default(CancellationToken));
-        Task ChangeMessageVisibilityAsync(string receiptHandle, int timeoutInSeconds, CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Long polls a predefined number of messages from the queue
+        /// </summary>
+        /// <param name="maxNumberOfCommands"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<IReadOnlyCollection<ISQSCommand>> ReceiveCommandBatchAsync(int maxNumberOfCommands = 10, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// A batch queue insert can result in a combination of successful and unsuccessful commands
+        /// </summary>
+        /// <param name="commands"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<(IReadOnlyCollection<string> Successful, IReadOnlyCollection<string> Failed)> SendCommandBatchAsync(IEnumerable<ISQSCommand> commands, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// A batch queue delete can result in a combination of successful and unsuccessful commands
+        /// </summary>
+        /// <param name="receiptHandles"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<(IReadOnlyCollection<string> Successful, IReadOnlyCollection<string> Failed)> DeleteCommandBatchAsync(IEnumerable<string> receiptHandles, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
