@@ -36,18 +36,18 @@ namespace Consumer.Actors
                         TimeSpan.FromSeconds(1),
                         TimeSpan.FromSeconds(2),
                         context.Self,
-                        new DeleteMessageBatch(),
+                        new DeleteCommandBatch(),
                         out _timer);
                 }
                 break;
 
-                case DeleteMessage delete:
+                case DeleteCommand delete:
                 {
                     AddToBatch(delete);
                 }
                 break;
 
-                case DeleteMessageBatch batch:
+                case DeleteCommandBatch batch:
                 {
                     if (_receiptHandles.Count > 0)
                     {
@@ -71,7 +71,7 @@ namespace Consumer.Actors
             successful.ForEach(x => _receiptHandles.Remove(x));
         }
 
-        private void AddToBatch(DeleteMessage delete)
+        private void AddToBatch(DeleteCommand delete)
         {
             _receiptHandles.Add(delete.ReceiptHandle);
         }

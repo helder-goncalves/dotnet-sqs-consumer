@@ -50,7 +50,7 @@ namespace Consumer
 
                 var actorFactory = container.GetInstance<IActorFactory>();
                 var dequeuer = actorFactory.GetActor<Dequeuer>();
-                dequeuer.Tell(new ReceiveMessages());
+                dequeuer.Tell(new ReceiveCommands());
 
                 _closing.WaitOne();
             }

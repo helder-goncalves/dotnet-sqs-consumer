@@ -8,7 +8,7 @@ namespace Queueing
     public interface ISQSClient
     {
         /// <summary>
-        /// Long polls a predefined number of messages from the queue
+        /// Long polls a predefined number of commands from the queue
         /// </summary>
         /// <param name="maxNumberOfCommands"></param>
         /// <param name="cancellationToken"></param>

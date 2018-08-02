@@ -32,9 +32,9 @@ namespace Consumer.Actors
         {
             switch (context.Message)
             {
-                case ReceiveMessages receive:
+                case ReceiveCommands receive:
                 {
-                    var commands = await _sqsClient.ReceiveCommandBatchAsync(receive.NumberOfMessages);
+                    var commands = await _sqsClient.ReceiveCommandBatchAsync(receive.NumberOfCommands);
                     if (commands.Count() > 0)
                     {
                         foreach (var command in commands)
@@ -44,7 +44,7 @@ namespace Consumer.Actors
                             handler.Tell(message);
                         }
 
-                        context.Self.Tell(new ReceiveMessages());
+                        context.Self.Tell(new ReceiveCommands());
                     }
                     else
                     {
@@ -56,7 +56,7 @@ namespace Consumer.Actors
                 case BackOff backOff:
                 {
                     await Task.Delay(TimeSpan.FromSeconds(backOff.DelayInSeconds));
-                    context.Self.Tell(new ReceiveMessages());
+                    context.Self.Tell(new ReceiveCommands());
                 }
                 break;
             }

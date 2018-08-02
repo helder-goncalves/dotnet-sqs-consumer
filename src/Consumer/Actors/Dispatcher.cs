@@ -45,9 +45,9 @@ namespace Consumer.Actors
                     var deleter = _actorFactory.GetActor<Deleter>();
 
                     deleter.Tell(
-                        new DeleteMessage
+                        new DeleteCommand
                         {
-                            MessageId = sendRequest.MessageId,
+                            CommandId = sendRequest.CommandId,
                             ReceiptHandle = sendRequest.ReceiptHandle
                         });
                 }

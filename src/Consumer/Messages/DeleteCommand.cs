@@ -1,8 +1,8 @@
 namespace Consumer.Messages
 {
-    public class DeleteMessage
+    public class DeleteCommand
     {
-        public string MessageId { get; set; }
+        public string CommandId { get; set; }
         public string ReceiptHandle { get; set; }
     }
 }
